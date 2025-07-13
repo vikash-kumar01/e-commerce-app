@@ -2,7 +2,7 @@
 resource "aws_security_group" "allow_user_bastion" {
   name        = "bastion_host_SG"
   description = "Allow user to connect"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = var.vpc_id
   dynamic "ingress" {
     for_each = [
       { description = "port 22 allow", from = 22, to = 22, protocol = "tcp", cidr = ["0.0.0.0/0"] },
@@ -32,11 +32,11 @@ resource "aws_security_group" "allow_user_bastion" {
 }
 
 resource "aws_instance" "bastion_host" {
-  ami                    = data.aws_ami.os_image.id
+  ami                    = var.ami_id
   instance_type          = var.instance_type
-  key_name               = aws_key_pair.deployer.key_name
+  key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.allow_user_bastion.id]
-  subnet_id              = module.vpc.public_subnets[0]
+  subnet_id              = var.subnet_id
   user_data              = file("${path.module}/bastion_user_data.sh")
   tags = {
     Name = "Bastion-Host"
@@ -47,3 +47,11 @@ resource "aws_instance" "bastion_host" {
   }
 
 }
+
+variable "ami_id" {
+  description = "AMI ID for the EC2 instance"
+  type        = string
+  
+}
+
+# module.vpc.public_subnets[0]
