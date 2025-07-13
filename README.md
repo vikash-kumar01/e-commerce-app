@@ -148,7 +148,7 @@ aws configure
 ```
 
 ```bash
-aws eks --region eu-west-1 update-kubeconfig --name tws-eks-cluster
+aws eks --region us-east-1 update-kubeconfig --name mrdevops-eks-cluster
 ```
 9. **Check your cluster:**
 ```bash
@@ -229,7 +229,7 @@ sudo systemctl status jenkins
 > > In **General**<br/>
 > > - **Description:** EasyShop<br/>
 > > - **Check the box:** `GitHub project`<br/>
-> > - **GitHub Repo URL:** `https://github.com/<your user-name/tws-e-commerce-app`<br/>
+> > - **GitHub Repo URL:** `https://github.com/<your user-name/mrdevops-e-commerce-app`<br/>
 >
 > > In **Trigger**<br/>
 > > - **Check the box:**`GitHub hook trigger for GITScm polling`<br/>
@@ -237,7 +237,7 @@ sudo systemctl status jenkins
 > > In **Pipeline**<br/>
 > > - **Definition:** `Pipeline script from SCM`<br/>
 > > - **SCM:** `Git`<br/>
-> > - **Repository URL:** `https://github.com/<your user-name/tws-e-commerce-app`<br/>
+> > - **Repository URL:** `https://github.com/<your user-name/mrdevops-e-commerce-app`<br/>
 > > - **Credentials:** `github-credentials`<br/>
 > > - **Branch:** master<br/>
 > > - **Script Path:** `Jenkinsfile`<br/>
@@ -283,7 +283,7 @@ Add your Access Key and Secret Key when prompted.
 **9. Update Kubeconfig for EKS**<br/>
 Run the following important command:
 ```bash
-aws eks update-kubeconfig --region eu-west-1 --name tws-eks-cluster
+aws eks update-kubeconfig --region us-east-1 --name mrdevops-eks-cluster
 ```
 * This command maps your EKS cluster with your Bastion server.
 * It helps to communicate with EKS components.
@@ -377,7 +377,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 > In the “Destination” section:
 > 
 > - **Cluster URL:** [https://kubernetes.default.svc](https://kubernetes.default.svc/) (usually shown as "default")
-> - **Namespace:** tws-e-commerce-app (or your desired namespace)
+> - **Namespace:** mrdevops-e-commerce-app (or your desired namespace)
 
 > Click on “Create”.
 > 

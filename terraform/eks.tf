@@ -87,7 +87,7 @@ module "eks" {
 
   eks_managed_node_groups = {
 
-    tws-demo-ng = {
+    mrdevops-demo-ng = {
       min_size     = 1
       max_size     = 3
       desired_size = 1
@@ -104,7 +104,7 @@ module "eks" {
       }
 
       tags = {
-        Name        = "tws-demo-ng"
+        Name        = "mrdevops-demo-ng"
         Environment = "dev"
         ExtraTag    = "e-commerce-app"
       }

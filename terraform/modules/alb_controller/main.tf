@@ -32,7 +32,13 @@ resource "helm_release" "this" {
   timeout                    = lookup(var.app, "timeout", 300)
   values                     = var.values
 
-  set = [for item in coalesce(var.set, []): { "name": item.name, "value": item.value}]
-  set_sensitive = [for item in coalesce(var.set_sensitive, []): { "name": item.name, "value": item.value}]
+  dynamic "set" {
+    for_each = coalesce(var.set, [])
+    content {
+      name  = set.value.name
+      value = set.value.value
+    }
+  }
+  #set_sensitive = [for item in coalesce(var.set_sensitive, []): { "name": item.name, "value": item.value}]
 
 }
