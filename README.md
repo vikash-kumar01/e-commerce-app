@@ -64,6 +64,7 @@ Follow the instructions provided in the [Terraform README](https://github.com/vi
 ```bash
 # Link to provisioning guide
 https://github.com/vikash-kumar01/e-commerce-app/blob/master/terraform/README.md
+```
 
 ## Jenkins Setup Steps
 > [!TIP]
