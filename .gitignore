@@ -91,7 +91,15 @@ terraform.tfstate
 terraform.tfstate.backup
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
-terra-key.pub
-terra-key
+cloudwithvikash-key.pub
+cloudwithvikash-key
 terraform/apps/helm-values/.*
+
+# Ignore Terraform state and cache inside terraform/ folder
+terraform/.terraform.tfstate.lock.info
+terraform/*.tfplan
+
+# Optional: ignore tfvars if it contains secrets
+terraform/terraform.tfvars
+
 
