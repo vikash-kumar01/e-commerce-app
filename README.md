@@ -148,7 +148,7 @@ This project uses [Terraform](https://www.terraform.io/) to provision cloud infr
     - Scroll to Global Pipeline Libraries section
     - Add a New Shared Library:
         - Name: Shared
-        - Default Version: main
+        - Default Version: master
         - Project Repository URL: `https://github.com/<your user-name>/jenkins-shared-libraries`
 
 8. **Setup Pipeline**
