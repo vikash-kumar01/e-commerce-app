@@ -98,7 +98,7 @@ aws configure
 ```
 
 ```bash
-aws eks --region us-east-1 update-kubeconfig --name mrdevops-eks-cluster
+aws eks --region us-east-1 update-kubeconfig --name mrdevops-dev-eks
 ```
 9. **Check your cluster:**
 ```bash

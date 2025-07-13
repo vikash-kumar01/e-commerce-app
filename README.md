@@ -61,11 +61,6 @@ This project uses [Terraform](https://www.terraform.io/) to provision cloud infr
 
 Follow the instructions provided in the [Terraform README](https://github.com/vikash-kumar01/e-commerce-app/blob/master/terraform/README.md) to set up the infrastructure.
 
-```bash
-# Link to provisioning guide
-https://github.com/vikash-kumar01/e-commerce-app/blob/master/terraform/README.md
-```
-
 ## Jenkins Setup Steps
 > [!TIP]
 > Check if jenkins service is running:
