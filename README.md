@@ -656,12 +656,13 @@ upgrade filebeat helm chart and check in kibana’s UI if the app logs are strea
 
 ---
 
+<!--
 ## 5. **Congratulations!**  
 ![EasyShop Website Screenshot](./public/easyshop.JPG)
 
 ---
 
-<!--
+
 
 ### 📌 Architecture Diagram
 ![Diagram](./public/diagram-export.JPG)
