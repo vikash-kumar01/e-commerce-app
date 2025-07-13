@@ -12,21 +12,21 @@ EasyShop is a modern, full-stack e-commerce platform built with Next.js 14, Type
 
 ## 📑 Table of Contents
 
-1. [Features](#features)
-2. [Architecture](#architecture)
-3. [Prerequisites](#prerequisites)
-4. [Setup & Initialization](#setup--initialization)
-    - [4.1. Provisioning Terraform Infrastructure](#41-provisioning-terraform-infrastructure)
-    - [4.2. Jenkins Setup Steps](#42-jenkins-setup-steps)
-    - [4.3. Continuous Deployment Setup](#43-continuous-deployment-setup)
-    - [4.4. Argo CD Setup](#44-argo-cd-setup)
-    - [4.5. Deploying Your Application in Argo CD GUI](#45-deploying-your-application-in-argo-cd-gui)
-    - [4.6. Metric Server Installation](#46-metric-server-installation)
-    - [4.7. Monitoring Using kube-prometheus-stack](#47-monitoring-using-kube-prometheus-stack)
-    - [4.8. Alerting to Slack](#48-alerting-to-slack)
-    - [4.9. Logging (Elasticsearch, Filebeat, Kibana)](#49-logging-elasticsearch-filebeat-kibana)
-    - [4.10. Filebeat Configuration](#410-filebeat-configuration)
-5. [Congratulations & Visuals](#congratulations--visuals)
+1. [Features](#1-✨-features)
+2. [Architecture](#2-🏗️-architecture)
+3. [PreRequisites](#3-prerequisites)
+4. [Setup & Initialization](#4-setup--initialization)
+    4.1. [Provisioning Terraform Infrastructure](#41-provisioning-terraform-infrastructure)
+    4.2. [Jenkins Setup Steps](#42-jenkins-setup-steps)
+    4.3. [Continuous Deployment Setup](#43-continuous-deployment-setup)
+    4.4. [Argo CD Setup](#44-argo-cd-setup)
+    4.5. [Deploying Your Application in Argo CD GUI](#45-deploying-your-application-in-argo-cd-gui)
+    4.6. [Metric Server Installation](#46-metric-server-installation)
+    4.7. [Monitoring Using kube-prometheus-stack](#47-monitoring-using-kube-prometheus-stack)
+    4.8. [Alerting to Slack](#48-alerting-to-slack)
+    4.9. [Logging (Elasticsearch, Filebeat, Kibana)](#49-logging-elasticsearch-filebeat-kibana)
+    4.10. [Filebeat Configuration](#410-filebeat-configuration)
+5. [Congratulations & Visuals](#5-congratulations)
 
 ---
 
