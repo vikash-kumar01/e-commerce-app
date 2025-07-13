@@ -125,7 +125,7 @@ sudo systemctl status jenkins
 >
 > [Notes:] 
 > Make sure the repo contains a proper directory structure eq: vars/<br/>
-	
+    
 #### 7. Setup Pipeline<br/>
 > - Create New Pipeline Job<br/>
 >   - **Name:** EasyShop<br/>
@@ -203,7 +203,6 @@ https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html
 https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html#eksctl_store_app_data
 ```
 
-
 **12. Argo CD Setup**<br/>
 Create a Namespace for Argo CD<br/>
 ```bash
@@ -220,7 +219,7 @@ helm install my-argo-cd argo/argo-cd --version 8.0.10
 helm show values argo/argo-cd > argocd-values.yaml
 ```
 3. edit the values file, change the below settings.
-```
+```yaml
 global:
   domain: argocd.example.com
 
@@ -247,7 +246,7 @@ server:
       backendProtocolVersion: GRPC
 ```
 4. save and upgrade the helm chart.
-```
+```bash
 helm upgrade my-argo-cd argo/argo-cd -n argocd -f my-values.yaml
 ```
 5. add the record in route53 “argocd.devopsdock.site” with load balancer dns.
@@ -256,7 +255,7 @@ helm upgrade my-argo-cd argo/argo-cd -n argocd -f my-values.yaml
 
 7. Retrive the secret for Argocd
 
-```jsx
+```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
 
@@ -292,7 +291,7 @@ NOTE: before deploying Chnage your ingress settings and image tag in the yamls i
 
 Ingress Annotations: 
 
-```jsx
+```yaml
 annotations:
     alb.ingress.kubernetes.io/group.name: easyshop-app-lb
     alb.ingress.kubernetes.io/scheme: internet-facing
@@ -323,7 +322,7 @@ kubectl top pods
 
 create a namespace “monitoring”
 
-```jsx
+```bash
 kubectl create ns monitoring
 ```
 ```
@@ -331,13 +330,13 @@ https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack
 ```
 verify deployment :
 
-```jsx
+```bash
 kubectl get pods -n monitoring
 ```
 
 get the helm values and save it in a file
 
-```jsx
+```bash
 helm show values prometheus-community/kube-prometheus-stack > kube-prom-stack.yaml 
 ```
 
@@ -345,14 +344,14 @@ edit the file and add the following in the params for prometheus, grafana and al
 
 **Grafana:**
 
-```jsx
+```yaml
 ingressClassName: alb
 annotations:
       alb.ingress.kubernetes.io/group.name: easyshop-app-lb
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:876997124628:certificate/b69bb6e7-cbd1-490b-b765-27574080f48c
       alb.ingress.kubernetes.io/target-type: ip
-			alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
       alb.ingress.kubernetes.io/ssl-redirect: '443'
  
     hosts:
@@ -361,7 +360,7 @@ annotations:
 
 **Prometheus:** 
 
-```jsx
+```yaml
 ingressClassName: alb
 annotations:
       alb.ingress.kubernetes.io/group.name: easyshop-app-lb
@@ -372,8 +371,6 @@ annotations:
       alb.ingress.kubernetes.io/ssl-redirect: '443'
     labels: {}
 
-    
-  
     hosts: 
       - prometheus.devopsdock.site
         paths:
@@ -381,14 +378,14 @@ annotations:
         pathType: Prefix
 ```
 **Alertmanger:**
-```jsx
+```yaml
 ingressClassName: alb
 annotations:
       alb.ingress.kubernetes.io/group.name: easyshop-app-lb
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/target-type: ip
       alb.ingress.kubernetes.io/backend-protocol: HTTP
-			alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
       alb.ingress.kubernetes.io/ssl-redirect: '443'
     
     hosts: 
@@ -410,7 +407,7 @@ go to https://api.slack.com/apps to create the webhook.
 
 modify the helm values.
 
-```jsx
+```yaml
 config:
     global:
       resolve_timeout: 5m
@@ -438,13 +435,13 @@ Note: you can refer this DOCs for the slack configuration. “https://prometheus
 
 upgrade the chart
 
-```jsx
+```bash
 helm upgrade my-kube-prometheus-stack prometheus-community/kube-prometheus-stack -f kube-prom-stack.yaml -n monitoring
 ```
 
 get grafana secret “user = admin”
 
-```jsx
+```bash
 kubectl --namespace monitoring get secrets my-kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
 ```
 
@@ -457,7 +454,7 @@ NOTE: The EBS driver we installed is for elasticsearch to dynamically provision 
 ```
 **Install Elastic Search:**
 
-```jsx
+```bash
 helm repo add elastic https://helm.elastic.co -n logging
 helm install my-elasticsearch elastic/elasticsearch --version 8.5.1 -n logging
 ```
@@ -466,7 +463,7 @@ Create a storageclass so that elastic search can dynamically provision volume in
 
 storageclass.yaml
 
-```jsx
+```yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -482,13 +479,13 @@ apply the yaml file.
 
 get the values for elastic search helm chart.
 
-```jsx
+```bash
 helm show values elastic/elasticsearch > elasticsearch.yaml 
 ```
 
 update the values
 
-```jsx
+```yaml
 replicas: 1
 minimumMasterNodes: 1
 clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
@@ -496,7 +493,7 @@ clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
 
 upgrade the chart
 
-```jsx
+```bash
 helm upgrade my-elasticsearch elastic/elasticsearch -f elasticsearch.yaml -n logging
 ```
 
@@ -504,7 +501,7 @@ if upgarde doesnt happen then uninstall and install it again.
 
 make sure the pod is running .
 
-```jsx
+```bash
 kubectl get po -n logging
 NAME                     READY   STATUS    RESTARTS   AGE
 elastic-operator-0       1/1     Running   0          6h33m
@@ -515,20 +512,20 @@ elasticsearch-master-0   1/1     Running   0          87m
 
 install filebeat for log shipping.
 
-```jsx
+```bash
 helm repo add elastic https://helm.elastic.co
 helm install my-filebeat elastic/filebeat --version 8.5.1 -n logging
 ```
 
 get the values
 
-```jsx
+```bash
 helm show values elastic/filebeat > filebeat.yaml 
 ```
 
 Filebeat runs as a daemonset. check if its up.
 
-```jsx
+```bash
 kubectl get po -n logging
 NAME                         READY   STATUS    RESTARTS   AGE
 elastic-operator-0           1/1     Running   0          6h38m
@@ -541,15 +538,15 @@ my-filebeat-filebeat-kh8mj   1/1     Running   0          25s
 
 install kibana through helm.
 
-```jsx
+```bash
 helm repo add elastic https://helm.elastic.co
 helm install my-kibana elastic/kibana --version 8.5.1 -n logging
 ```
 
 Verify if it runs.
 
-```jsx
-k get po -n logging
+```bash
+kubectl get po -n logging
 NAME                               READY   STATUS    RESTARTS       AGE
 elastic-operator-0                 1/1     Running   0              8h
 elasticsearch-master-0             1/1     Running   0              3h50m
@@ -561,13 +558,13 @@ my-kibana-kibana-559f75574-9s4xk   1/1     Running   0              130m
 
 get values
 
-```jsx
+```bash
 helm show values elastic/kibana > kibana.yaml 
 ```
 
 modify the values for ingress settings
 
-```jsx
+```yaml
 ingress:
   enabled: true
   className: "alb"
@@ -580,8 +577,6 @@ ingress:
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:876997124628:certificate/b69bb6e7-cbd1-490b-b765-27574080f48c
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
-  # kubernetes.io/ingress.class: nginx
-  # kubernetes.io/tls-acme: "true"
   hosts:
     - host: logs-kibana.devopsdock.site
       paths:
@@ -590,7 +585,7 @@ ingress:
 
 save the file and exit. upgrade the helm chart using the values file.
 
-```jsx
+```bash
 helm upgrade my-kibana elastic/kibana -f kibana.yaml -n logging
 ```
 
@@ -598,7 +593,7 @@ add all the records to route 53 and give the value as load balancer DNS name. an
 
 retrive the secret of elastic search as kibana’s password, username is “elastic”
 
-```jsx
+```bash
 kubectl get secrets --namespace=logging elasticsearch-master-credentials -ojsonpath='{.data.password}' | base64 -d
 ```
 
@@ -606,7 +601,7 @@ kubectl get secrets --namespace=logging elasticsearch-master-credentials -ojsonp
 
 configure filebeat to ship the application logs to view in kibana
 
-```jsx
+```yaml
 filebeatConfig:
     filebeat.yml: |
       filebeat.inputs:
@@ -617,46 +612,9 @@ filebeatConfig:
 
 upgrade filebeat helm chart and check in kibana’s UI if the app logs are streaming.
 
-<!--
+---
 
 ## **Congratulations!** <br/>
-![EasyShop Website Screenshot](./public/easyshop.JPG)
+Your EasyShop platform is now fully deployed, monitored, and logging-enabled on AWS EKS with CI/CD, observability, and logging best practices.
 
 ---
-
-### 📌 Architecture Diagram
-![Diagram](./public/diagram-export.JPG)
-
----
-
-### 📌 ArgoCD
-![ArgoCD](./public/Argocd.JPG)
-
----
-
-### 📌 Capture
-![Capture](./public/Capture.JPG)
-
----
-
-### 📌 AlertManager
-![AlertManager](./public/alertManager.JPG)
-
-
----
-
-### 📌 Grafana Dashboard
-![Grafana](./public/grafana.JPG)
-
----
-
-### 📌 Kibana Logs View
-![Kibana](./public/kibana.JPG)
-
----
-
-### 📌 Prometheus Dashboard
-![Prometheus](./public/prometheus.JPG)
--->
-
-### WO! ooo!!! ...Your project is now deployed.
