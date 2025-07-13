@@ -59,7 +59,7 @@ This project uses [Terraform](https://www.terraform.io/) to provision cloud infr
 
 ### 📋 Steps to Provision
 
-Follow the instructions provided in the [Terraform README](https://github.com/vikash-kumar01/e-commerce-app/blob/master/terraform/README.md) to set up the infrastructure.
+Follow the instructions provided in the [Terraform README](https://github.com/vikash-kumar01/e-commerce-app/blob/master/terraform/README.md) to set up the infrastructure.`
 
 ## Jenkins Setup Steps
 > [!TIP]
@@ -135,7 +135,7 @@ sudo systemctl status jenkins
 > > In **General**<br/>
 > > - **Description:** EasyShop<br/>
 > > - **Check the box:** `GitHub project`<br/>
-> > - **GitHub Repo URL:** `https://github.com/<your user-name/mrdevops-e-commerce-app`<br/>
+> > - **GitHub Repo URL:** `https://github.com/<your user-name/tws-e-commerce-app`<br/>
 >
 > > In **Trigger**<br/>
 > > - **Check the box:**`GitHub hook trigger for GITScm polling`<br/>
@@ -143,7 +143,7 @@ sudo systemctl status jenkins
 > > In **Pipeline**<br/>
 > > - **Definition:** `Pipeline script from SCM`<br/>
 > > - **SCM:** `Git`<br/>
-> > - **Repository URL:** `https://github.com/<your user-name/mrdevops-e-commerce-app`<br/>
+> > - **Repository URL:** `https://github.com/<your user-name/tws-e-commerce-app`<br/>
 > > - **Credentials:** `github-credentials`<br/>
 > > - **Branch:** master<br/>
 > > - **Script Path:** `Jenkinsfile`<br/>
@@ -189,7 +189,7 @@ Add your Access Key and Secret Key when prompted.
 **9. Update Kubeconfig for EKS**<br/>
 Run the following important command:
 ```bash
-aws eks update-kubeconfig --region us-east-1 --name mrdevops-eks-cluster
+aws eks update-kubeconfig --region eu-west-1 --name tws-eks-cluster
 ```
 * This command maps your EKS cluster with your Bastion server.
 * It helps to communicate with EKS components.
@@ -219,7 +219,7 @@ helm install my-argo-cd argo/argo-cd --version 8.0.10
 helm show values argo/argo-cd > argocd-values.yaml
 ```
 3. edit the values file, change the below settings.
-```yaml
+```
 global:
   domain: argocd.example.com
 
@@ -246,7 +246,7 @@ server:
       backendProtocolVersion: GRPC
 ```
 4. save and upgrade the helm chart.
-```bash
+```
 helm upgrade my-argo-cd argo/argo-cd -n argocd -f my-values.yaml
 ```
 5. add the record in route53 “argocd.cloudwithvikash.com” with load balancer dns.
@@ -255,7 +255,7 @@ helm upgrade my-argo-cd argo/argo-cd -n argocd -f my-values.yaml
 
 7. Retrive the secret for Argocd
 
-```bash
+```jsx
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
 
@@ -272,7 +272,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 > 
 > - **Application Name:** `Enter your desired app name`
 > - **Project Name:** Select `default` from the dropdown.
-> - **Sync Policy:** Choose `Automatic`.
+> - **Sync Policy:** Choose `Automatic`
 
 > In the Source section:
 > 
@@ -282,7 +282,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 > In the “Destination” section:
 > 
 > - **Cluster URL:** [https://kubernetes.default.svc](https://kubernetes.default.svc/) (usually shown as "default")
-> - **Namespace:** mrdevops-e-commerce-app (or your desired namespace)
+> - **Namespace:** tws-e-commerce-app (or your desired namespace)
 
 > Click on “Create”.
 > 
@@ -291,7 +291,7 @@ NOTE: before deploying Chnage your ingress settings and image tag in the yamls i
 
 Ingress Annotations: 
 
-```yaml
+```jsx
 annotations:
     alb.ingress.kubernetes.io/group.name: easyshop-app-lb
     alb.ingress.kubernetes.io/scheme: internet-facing
@@ -322,7 +322,7 @@ kubectl top pods
 
 create a namespace “monitoring”
 
-```bash
+```jsx
 kubectl create ns monitoring
 ```
 ```
@@ -330,13 +330,13 @@ https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack
 ```
 verify deployment :
 
-```bash
+```jsx
 kubectl get pods -n monitoring
 ```
 
 get the helm values and save it in a file
 
-```bash
+```jsx
 helm show values prometheus-community/kube-prometheus-stack > kube-prom-stack.yaml 
 ```
 
@@ -344,14 +344,14 @@ edit the file and add the following in the params for prometheus, grafana and al
 
 **Grafana:**
 
-```yaml
+```jsx
 ingressClassName: alb
 annotations:
       alb.ingress.kubernetes.io/group.name: easyshop-app-lb
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:876997124628:certificate/b69bb6e7-cbd1-490b-b765-27574080f48c
       alb.ingress.kubernetes.io/target-type: ip
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
+            alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
       alb.ingress.kubernetes.io/ssl-redirect: '443'
  
     hosts:
@@ -360,7 +360,7 @@ annotations:
 
 **Prometheus:** 
 
-```yaml
+```jsx
 ingressClassName: alb
 annotations:
       alb.ingress.kubernetes.io/group.name: easyshop-app-lb
@@ -378,14 +378,14 @@ annotations:
         pathType: Prefix
 ```
 **Alertmanger:**
-```yaml
+```jsx
 ingressClassName: alb
 annotations:
       alb.ingress.kubernetes.io/group.name: easyshop-app-lb
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/target-type: ip
       alb.ingress.kubernetes.io/backend-protocol: HTTP
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
+            alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
       alb.ingress.kubernetes.io/ssl-redirect: '443'
     
     hosts: 
@@ -407,7 +407,7 @@ go to https://api.slack.com/apps to create the webhook.
 
 modify the helm values.
 
-```yaml
+```jsx
 config:
     global:
       resolve_timeout: 5m
@@ -435,13 +435,13 @@ Note: you can refer this DOCs for the slack configuration. “https://prometheus
 
 upgrade the chart
 
-```bash
+```jsx
 helm upgrade my-kube-prometheus-stack prometheus-community/kube-prometheus-stack -f kube-prom-stack.yaml -n monitoring
 ```
 
 get grafana secret “user = admin”
 
-```bash
+```jsx
 kubectl --namespace monitoring get secrets my-kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
 ```
 
@@ -454,7 +454,7 @@ NOTE: The EBS driver we installed is for elasticsearch to dynamically provision 
 ```
 **Install Elastic Search:**
 
-```bash
+```jsx
 helm repo add elastic https://helm.elastic.co -n logging
 helm install my-elasticsearch elastic/elasticsearch --version 8.5.1 -n logging
 ```
@@ -463,7 +463,7 @@ Create a storageclass so that elastic search can dynamically provision volume in
 
 storageclass.yaml
 
-```yaml
+```jsx
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -479,13 +479,13 @@ apply the yaml file.
 
 get the values for elastic search helm chart.
 
-```bash
+```jsx
 helm show values elastic/elasticsearch > elasticsearch.yaml 
 ```
 
 update the values
 
-```yaml
+```jsx
 replicas: 1
 minimumMasterNodes: 1
 clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
@@ -493,7 +493,7 @@ clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
 
 upgrade the chart
 
-```bash
+```jsx
 helm upgrade my-elasticsearch elastic/elasticsearch -f elasticsearch.yaml -n logging
 ```
 
@@ -501,7 +501,7 @@ if upgarde doesnt happen then uninstall and install it again.
 
 make sure the pod is running .
 
-```bash
+```jsx
 kubectl get po -n logging
 NAME                     READY   STATUS    RESTARTS   AGE
 elastic-operator-0       1/1     Running   0          6h33m
@@ -512,20 +512,20 @@ elasticsearch-master-0   1/1     Running   0          87m
 
 install filebeat for log shipping.
 
-```bash
+```jsx
 helm repo add elastic https://helm.elastic.co
 helm install my-filebeat elastic/filebeat --version 8.5.1 -n logging
 ```
 
 get the values
 
-```bash
+```jsx
 helm show values elastic/filebeat > filebeat.yaml 
 ```
 
 Filebeat runs as a daemonset. check if its up.
 
-```bash
+```jsx
 kubectl get po -n logging
 NAME                         READY   STATUS    RESTARTS   AGE
 elastic-operator-0           1/1     Running   0          6h38m
@@ -538,15 +538,15 @@ my-filebeat-filebeat-kh8mj   1/1     Running   0          25s
 
 install kibana through helm.
 
-```bash
+```jsx
 helm repo add elastic https://helm.elastic.co
 helm install my-kibana elastic/kibana --version 8.5.1 -n logging
 ```
 
 Verify if it runs.
 
-```bash
-kubectl get po -n logging
+```jsx
+k get po -n logging
 NAME                               READY   STATUS    RESTARTS       AGE
 elastic-operator-0                 1/1     Running   0              8h
 elasticsearch-master-0             1/1     Running   0              3h50m
@@ -558,13 +558,13 @@ my-kibana-kibana-559f75574-9s4xk   1/1     Running   0              130m
 
 get values
 
-```bash
+```jsx
 helm show values elastic/kibana > kibana.yaml 
 ```
 
 modify the values for ingress settings
 
-```yaml
+```jsx
 ingress:
   enabled: true
   className: "alb"
@@ -577,6 +577,8 @@ ingress:
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:876997124628:certificate/b69bb6e7-cbd1-490b-b765-27574080f48c
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
   hosts:
     - host: logs-kibana.cloudwithvikash.com
       paths:
@@ -585,7 +587,7 @@ ingress:
 
 save the file and exit. upgrade the helm chart using the values file.
 
-```bash
+```jsx
 helm upgrade my-kibana elastic/kibana -f kibana.yaml -n logging
 ```
 
@@ -593,7 +595,7 @@ add all the records to route 53 and give the value as load balancer DNS name. an
 
 retrive the secret of elastic search as kibana’s password, username is “elastic”
 
-```bash
+```jsx
 kubectl get secrets --namespace=logging elasticsearch-master-credentials -ojsonpath='{.data.password}' | base64 -d
 ```
 
@@ -601,7 +603,7 @@ kubectl get secrets --namespace=logging elasticsearch-master-credentials -ojsonp
 
 configure filebeat to ship the application logs to view in kibana
 
-```yaml
+```jsx
 filebeatConfig:
     filebeat.yml: |
       filebeat.inputs:
@@ -612,9 +614,47 @@ filebeatConfig:
 
 upgrade filebeat helm chart and check in kibana’s UI if the app logs are streaming.
 
----
-
 ## **Congratulations!** <br/>
-Your EasyShop platform is now fully deployed, monitored, and logging-enabled on AWS EKS with CI/CD, observability, and logging best practices.
+![EasyShop Website Screenshot](./public/easyshop.JPG)
 
 ---
+
+<!--
+
+### 📌 Architecture Diagram
+![Diagram](./public/diagram-export.JPG)
+
+---
+
+### 📌 ArgoCD
+![ArgoCD](./public/Argocd.JPG)
+
+---
+
+### 📌 Capture
+![Capture](./public/Capture.JPG)
+
+---
+
+### 📌 AlertManager
+![AlertManager](./public/alertManager.JPG)
+
+
+---
+
+### 📌 Grafana Dashboard
+![Grafana](./public/grafana.JPG)
+
+---
+
+### 📌 Kibana Logs View
+![Kibana](./public/kibana.JPG)
+
+---
+
+### 📌 Prometheus Dashboard
+![Prometheus](./public/prometheus.JPG)
+
+-->
+
+### WO! ooo!!! ...Your project is now deployed.
