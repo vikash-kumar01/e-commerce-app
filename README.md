@@ -46,452 +46,575 @@ EasyShop follows a three-tier architecture pattern:
 - CRUD Operations
 - Data Validation
 
-## 📑 Index
-
-1. PreRequisites
-2. Setup & Initialization
-    2.1 Provisioning Terraform Infrastructure
-    2.2 Jenkins Setup Steps
-    2.3 Continuous Deployment (CD) Setup
-    2.4 Argo CD Setup
-    2.5 Monitoring & Logging Setup
-        2.5.1 Install Metric Server
-        2.5.2 Monitoring Using kube-prometheus-stack
-        2.5.3 Alerting to Slack
-        2.5.4 Logging with Elasticsearch, Filebeat, Kibana
-3. Congratulations!
-
-## 1. PreRequisites
+## PreRequisites
 
 > [!IMPORTANT]  
-> Before you begin setting up this project, make sure the infrastructure is deployed on AWS.
+> Before you begin setting up this project, make sure the infrastructure is deployed on aws:
 
----
+## Setup & Initialization <br/>
 
-## 2. Setup & Initialization
-
-### 2.1 Provisioning Terraform Infrastructure
+## 1. Provisioning Terraform Infrastructure
 
 This project uses [Terraform](https://www.terraform.io/) to provision cloud infrastructure for the e-commerce application.
 
-#### Steps to Provision
+### 📋 Steps to Provision
 
-1. **Clone the Repository**
-    ```bash
-    git clone https://github.com/yourusername/e-commerce-app.git
-    cd e-commerce-app/terraform
-    ```
+Follow the instructions provided in the [Terraform README](https://github.com/vikash-kumar01/e-commerce-app/blob/master/terraform/README.md) to set up the infrastructure.
 
-2. **Initialize Terraform**
-    ```bash
-    terraform init
-    ```
+## Jenkins Setup Steps
+> [!TIP]
+> Check if jenkins service is running:
 
-3. **Review and Edit Variables**
-    - Edit `variables.tf` or create environment-specific files like `dev.tfvars`, `prod.tfvars`.
-    - Ensure your AWS region, account ID, and key names are correct.
+```bash
+sudo systemctl status jenkins
+```
+## Steps to Access Jenkins & Install Plugins
 
-4. **Plan the Deployment**
-    ```bash
-    terraform plan -var-file="dev.tfvars"
-    ```
+#### 1. **Open Jenkins in Browser:**
+> Use your public IP with port 8080:
+>**http://<public_IP>:8080**
 
-5. **Apply the Deployment**
-    ```bash
-    terraform apply -var-file="dev.tfvars"
-    ```
+#### 2. **Initial Admin password:**
+> Start the service and get the Jenkins initial admin password:
+> ```bash
+> sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+> ```
 
----
+#### 3. **Start Jenkins (*If Not Running*):**
+> Get the Jenkins initial admin password:
+> ```bash
+> sudo systemctl enable jenkins
+> sudo systemctl restart jenkins
+> ```
+#### 4. **Install Essential Plugins:**
+> - Navigate to:
+> **Manage Jenkins → Plugins → Available Plugins**<br/>
+> - Search and install the following:<br/>
+>   - **Docker Pipeline**<br/>
+>   - **Pipeline View**
 
-### 2.2 Jenkins Setup Steps
 
-1. **Check if Jenkins Service is Running**
-    ```bash
-    sudo systemctl status jenkins
-    ```
+#### 5. **Set Up Docker & GitHub Credentials in Jenkins (Global Credentials)**<br/>
+>
+> - GitHub Credentials:
+>   - Go to:
+**Jenkins → Manage Jenkins → Credentials → (Global) → Add Credentials**
+> - Use:
+>   - Kind: **Username with password**
+>   - ID: **github-credentials**<br/>
 
-2. **Open Jenkins in Browser**
-    - Use your public IP with port 8080:  
-      `http://<public_IP>:8080`
 
-3. **Get Initial Admin Password**
-    ```bash
-    sudo cat /var/lib/jenkins/secrets/initialAdminPassword
-    ```
+> - DockerHub Credentials:
+> Go to the same Global Credentials section
+> - Use:
+>   - Kind: **Username with password**
+>   - ID: **docker-hub-credentials**
+> [Notes:]
+> Use these IDs in your Jenkins pipeline for secure access to GitHub and DockerHub
 
-4. **Start Jenkins (If Not Running)**
-    ```bash
-    sudo systemctl enable jenkins
-    sudo systemctl restart jenkins
-    ```
+#### 6. Jenkins Shared Library Setup:
+> - `Configure Trusted Pipeline Library`:
+>   - Go to:
+> **Jenkins → Manage Jenkins → Configure System**
+> Scroll to Global Pipeline Libraries section
+>
+> - **Add a New Shared Library:** 
+> - **Name:** Shared
+> - **Default Version:** main
+> - **Project Repository URL:** `https://github.com/<your user-name/jenkins-shared-libraries`.
+>
+> [Notes:] 
+> Make sure the repo contains a proper directory structure eq: vars/<br/>
+    
+#### 7. Setup Pipeline<br/>
+> - Create New Pipeline Job<br/>
+>   - **Name:** EasyShop<br/>
+>   - **Type:** Pipeline<br/>
+> Press `Okey`<br/>
 
-5. **Install Essential Plugins**
-    - Navigate to:  
-      `Manage Jenkins → Plugins → Available Plugins`
-    - Search and install:
-        - Docker Pipeline
-        - Pipeline View
+> > In **General**<br/>
+> > - **Description:** EasyShop<br/>
+> > - **Check the box:** `GitHub project`<br/>
+> > - **GitHub Repo URL:** `https://github.com/<your user-name/mrdevops-e-commerce-app`<br/>
+>
+> > In **Trigger**<br/>
+> > - **Check the box:**`GitHub hook trigger for GITScm polling`<br/>
+>
+> > In **Pipeline**<br/>
+> > - **Definition:** `Pipeline script from SCM`<br/>
+> > - **SCM:** `Git`<br/>
+> > - **Repository URL:** `https://github.com/<your user-name/mrdevops-e-commerce-app`<br/>
+> > - **Credentials:** `github-credentials`<br/>
+> > - **Branch:** master<br/>
+> > - **Script Path:** `Jenkinsfile`<br/>
 
-6. **Set Up Docker & GitHub Credentials in Jenkins (Global Credentials)**
-    - GitHub Credentials:
-        - Go to:  
-          `Jenkins → Manage Jenkins → Credentials → (Global) → Add Credentials`
-        - Kind: Username with password
-        - ID: github-credentials
-    - DockerHub Credentials:
-        - Kind: Username with password
-        - ID: docker-hub-credentials
+#### **Fork Required Repos**<br/>
+> > Fork App Repo:<br/>
+> > * Open the `Jenkinsfile`<br/>
+> > * Change the DockerHub username to yours<br/>
+>
+> > **Fork Shared Library Repo:**<br/>
+> > * Edit `vars/update_k8s_manifest.groovy`<br/>
+> > * Update with your `DockerHub username`<br/>
+> 
+> > **Setup Webhook**<br/>
+> > In GitHub:<br/>
+> >  * Go to **`Settings` → `Webhooks`**<br/>
+> >  * Add a new webhook pointing to your Jenkins URL<br/>
+> >  * Select: **`GitHub hook trigger for GITScm polling`** in Jenkins job<br/>
+>
+> > **Trigger the Pipeline**<br/>
+> > Click **`Build Now`** in Jenkins
 
-7. **Jenkins Shared Library Setup**
-    - Go to:  
-      `Jenkins → Manage Jenkins → Configure System`
-    - Scroll to Global Pipeline Libraries section
-    - Add a New Shared Library:
-        - Name: Shared
-        - Default Version: master
-        - Project Repository URL: `https://github.com/<your user-name>/jenkins-shared-libraries`
+#### **8. CD – Continuous Deployment Setup**<br/>
+**Prerequisites:**<br/>
+Before configuring CD, make sure the following tools are installed:<br/>
+* Installations Required:<br/>
+**kubectl**<br/>
+**AWS CLI**
 
-8. **Setup Pipeline**
-    - Create New Pipeline Job
-        - Name: EasyShop
-        - Type: Pipeline
-    - In General:
-        - Description: EasyShop
-        - Check the box: GitHub project
-        - GitHub Repo URL: `https://github.com/<your user-name>/mrdevops-e-commerce-app`
-    - In Trigger:
-        - Check the box: GitHub hook trigger for GITScm polling
-    - In Pipeline:
-        - Definition: Pipeline script from SCM
-        - SCM: Git
-        - Repository URL: `https://github.com/<your user-name>/mrdevops-e-commerce-app`
-        - Credentials: github-credentials
-        - Branch: master
-        - Script Path: Jenkinsfile
+**SSH into Bastion Server**<br/>
+* Connect to your Bastion EC2 instance via SSH.
 
-9. **Fork Required Repos**
-    - Fork App Repo:
-        - Open the Jenkinsfile
-        - Change the DockerHub username to yours
-    - Fork Shared Library Repo:
-        - Edit `vars/update_k8s_manifest.groovy`
-        - Update with your DockerHub username
+**Note:**<br/>
+This is not the node where Jenkins is running. This is the intermediate EC2 (Bastion Host) used for accessing private resources like your EKS cluster.
 
-10. **Setup Webhook**
-    - In GitHub:
-        - Go to Settings → Webhooks
-        - Add a new webhook pointing to your Jenkins URL
-        - Select: GitHub hook trigger for GITScm polling in Jenkins job
+**8. Configure AWS CLI on Bastion Server**
+Run the AWS configure command:<br/>
+```bash
+aws configure
+```
+Add your Access Key and Secret Key when prompted.
 
-11. **Trigger the Pipeline**
-    - Click Build Now in Jenkins
+**9. Update Kubeconfig for EKS**<br/>
+Run the following important command:
+```bash
+aws eks update-kubeconfig --region us-east-1 --name mrdevops-eks-cluster
+```
+* This command maps your EKS cluster with your Bastion server.
+* It helps to communicate with EKS components.
 
----
+**10. Install AWS application load balancer refering the below docs link**<br/>
+```
+https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html
+```
+**11. Install the EBS CSI driver refering the below docs link**<br/>
+```
+https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html#eksctl_store_app_data
+```
 
-### 2.3 Continuous Deployment (CD) Setup
+**12. Argo CD Setup**<br/>
+Create a Namespace for Argo CD<br/>
+```bash
+kubectl create namespace argocd
+```
+1. Install Argo CD using helm  
+(https://artifacthub.io/packages/helm/argo/argo-cd)
+```bash
+helm repo add argo https://argoproj.github.io/argo-helm
+helm install my-argo-cd argo/argo-cd --version 8.0.10
+```
+2. get the values file and save it
+```bash
+helm show values argo/argo-cd > argocd-values.yaml
+```
+3. edit the values file, change the below settings.
+```yaml
+global:
+  domain: argocd.example.com
 
-1. **Install Required Tools**
-    - kubectl
-    - AWS CLI
+configs:
+  params:
+    server.insecure: true
 
-2. **SSH into Bastion Server**
-    - Connect to your Bastion EC2 instance via SSH.
-
-3. **Configure AWS CLI on Bastion Server**
-    ```bash
-    aws configure
-    ```
-
-4. **Update Kubeconfig for EKS**
-    ```bash
-    aws eks update-kubeconfig --region us-east-1 --name mrdevops-eks-cluster
-    ```
-
-5. **Install AWS Application Load Balancer Controller**
-    - Refer: https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html
-
-6. **Install EBS CSI Driver**
-    - Refer: https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html#eksctl_store_app_data
-
----
-
-### 2.4 Argo CD Setup
-
-1. **Create Namespace for Argo CD**
-    ```bash
-    kubectl create namespace argocd
-    ```
-
-2. **Install Argo CD using Helm**
-    ```bash
-    helm repo add argo https://argoproj.github.io/argo-helm
-    helm install my-argo-cd argo/argo-cd --version 8.0.10
-    ```
-
-3. **Get and Edit Values File**
-    ```bash
-    helm show values argo/argo-cd > argocd-values.yaml
-    ```
-    - Edit the values file as per your domain and ingress settings.
-
-4. **Upgrade the Helm Chart**
-    ```bash
-    helm upgrade my-argo-cd argo/argo-cd -n argocd -f my-values.yaml
-    ```
-
-5. **Add Route53 Record**
-    - Add the record in Route53 for your domain with the load balancer DNS.
-
-6. **Access Argo CD in Browser**
-
-7. **Retrieve Argo CD Admin Secret**
-    ```bash
-    kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-    ```
-
-8. **Login and Change Password in Argo CD UI**
-
-9. **Deploy Your Application in Argo CD GUI**
-    - Fill in Application Name, Project Name, Sync Policy, Repo URL, Path, Cluster URL, Namespace, etc.
-
-10. **Update Ingress Settings and Image Tag in Kubernetes Manifests**
-
-11. **Add Route53 Record for Your Site**
-
-12. **Access Your Site**
-
----
-
-### 2.5 Monitoring & Logging Setup
-
-#### 2.5.1 Install Metric Server
-
-1. **Install Metric Server via Helm**
-    - Refer: https://artifacthub.io/packages/helm/metrics-server/metrics-server
-
-2. **Verify Metric Server**
-    ```bash
-    kubectl get pods -w
-    kubectl top pods
-    ```
-
-#### 2.5.2 Monitoring Using kube-prometheus-stack
-
-1. **Create Namespace**
-    ```bash
-    kubectl create ns monitoring
-    ```
-
-2. **Install kube-prometheus-stack via Helm**
-    - Refer: https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack
-
-3. **Verify Deployment**
-    ```bash
-    kubectl get pods -n monitoring
-    ```
-
-4. **Get and Edit Helm Values**
-    ```bash
-    helm show values prometheus-community/kube-prometheus-stack > kube-prom-stack.yaml
-    ```
-    - Edit values for Grafana, Prometheus, Alertmanager ingress and annotations.
-
-    **Example Grafana Ingress:**
-    ```yaml
+server:
+  ingress:
+    enabled: true
+    controller: aws
     ingressClassName: alb
     annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/certificate-arn: <your-cert-arn>
+      alb.ingress.kubernetes.io/group.name: easyshop-app-lb
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/backend-protocol: HTTP
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
+      alb.ingress.kubernetes.io/ssl-redirect: '443'
+    hostname: argocd.devopsdock.site
+    aws:
+      serviceType: ClusterIP # <- Used with target-type: ip
+      backendProtocolVersion: GRPC
+```
+4. save and upgrade the helm chart.
+```bash
+helm upgrade my-argo-cd argo/argo-cd -n argocd -f my-values.yaml
+```
+5. add the record in route53 “argocd.devopsdock.site” with load balancer dns.
+
+6. access it in browser.
+
+7. Retrive the secret for Argocd
+
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
+8. login to argocd “admin” and retrieved password
+
+9. Change the password by going to “user info” tab in the UI.
+
+**Deploy Your Application in Argo CD GUI**
+
+> On the Argo CD homepage, click on the “New App” button.
+> 
+
+> Fill in the following details:
+> 
+> - **Application Name:** `Enter your desired app name`
+> - **Project Name:** Select `default` from the dropdown.
+> - **Sync Policy:** Choose `Automatic`.
+
+> In the Source section:
+> 
+> - **Repo URL:** Add the Git repository URL that contains your Kubernetes manifests.
+> - **Path:** `Kubernetes` (or the actual path inside the repo where your manifests reside)
+
+> In the “Destination” section:
+> 
+> - **Cluster URL:** [https://kubernetes.default.svc](https://kubernetes.default.svc/) (usually shown as "default")
+> - **Namespace:** mrdevops-e-commerce-app (or your desired namespace)
+
+> Click on “Create”.
+> 
+
+NOTE: before deploying Chnage your ingress settings and image tag in the yamls inside “kubernetes” directory
+
+Ingress Annotations: 
+
+```yaml
+annotations:
+    alb.ingress.kubernetes.io/group.name: easyshop-app-lb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:876997124628:certificate/b69bb6e7-cbd1-490b-b765-27574080f48c
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    kubernetes.io/ingress.class: alb
+```
+
+- **add record to route 53 “easyshop.devopsdock.site”**
+
+- **Access your site now.**
+
+### Install Metric Server
+
+- metric server install thru helm chart
+```
+https://artifacthub.io/packages/helm/metrics-server/metrics-server
+```
+verify metric server.
+```
+kubectl get pods -w
+kubectl top pods
+```
+### Monitoring Using kube-prometheus-stack
+
+create a namespace “monitoring”
+
+```bash
+kubectl create ns monitoring
+```
+```
+https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack
+```
+verify deployment :
+
+```bash
+kubectl get pods -n monitoring
+```
+
+get the helm values and save it in a file
+
+```bash
+helm show values prometheus-community/kube-prometheus-stack > kube-prom-stack.yaml 
+```
+
+edit the file and add the following in the params for prometheus, grafana and alert manger.
+
+**Grafana:**
+
+```yaml
+ingressClassName: alb
+annotations:
       alb.ingress.kubernetes.io/group.name: easyshop-app-lb
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:876997124628:certificate/b69bb6e7-cbd1-490b-b765-27574080f48c
       alb.ingress.kubernetes.io/target-type: ip
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
       alb.ingress.kubernetes.io/ssl-redirect: '443'
+ 
     hosts:
       - grafana.devopsdock.site
-    ```
+```
 
-    **Example Prometheus Ingress:**
-    ```yaml
-    ingressClassName: alb
-    annotations:
+**Prometheus:** 
+
+```yaml
+ingressClassName: alb
+annotations:
       alb.ingress.kubernetes.io/group.name: easyshop-app-lb
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:876997124628:certificate/b69bb6e7-cbd1-490b-b765-27574080f48c
       alb.ingress.kubernetes.io/target-type: ip
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
       alb.ingress.kubernetes.io/ssl-redirect: '443'
-    hosts:
+    labels: {}
+
+    hosts: 
       - prometheus.devopsdock.site
         paths:
         - /
         pathType: Prefix
-    ```
-
-    **Example Alertmanager Ingress:**
-    ```yaml
-    ingressClassName: alb
-    annotations:
+```
+**Alertmanger:**
+```yaml
+ingressClassName: alb
+annotations:
       alb.ingress.kubernetes.io/group.name: easyshop-app-lb
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/target-type: ip
       alb.ingress.kubernetes.io/backend-protocol: HTTP
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
       alb.ingress.kubernetes.io/ssl-redirect: '443'
-    hosts:
+    
+    hosts: 
       - alertmanager.devopsdock.site
     paths:
-      - /
+    - /
     pathType: Prefix
-    ```
+```
 
-5. **Upgrade the Chart**
-    ```bash
-    helm upgrade my-kube-prometheus-stack prometheus-community/kube-prometheus-stack -f kube-prom-stack.yaml -n monitoring
-    ```
+**Alerting to Slack** 
 
-6. **Get Grafana Admin Password**
-    ```bash
-    kubectl --namespace monitoring get secrets my-kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
-    ```
+Create a new workspace in slack, create a new channel e.g. “#alerts”
 
-#### 2.5.3 Alerting to Slack
+go to https://api.slack.com/apps to create the webhook.
 
-1. **Create Slack Workspace and Channel**
-2. **Create Slack App and Incoming Webhook**
-3. **Edit Alertmanager Helm Values with Slack Webhook**
-    ```yaml
-    config:
-      global:
-        resolve_timeout: 5m
-      route:
-        group_by: ['namespace']
-        group_wait: 30s
-        group_interval: 5m
-        repeat_interval: 12h
-        receiver: 'slack-notification'
-        routes:
-        - receiver: 'slack-notification'
-          matchers:
-            - severity = "critical"
-      receivers:
-      - name: 'slack-notification'
-        slack_configs:
-          - api_url: 'https://hooks.slack.com/services/your/webhook/url'
+1. create an app “alertmanager”
+2. go to incoming webhook
+3. create a webhook and copy it.
+
+modify the helm values.
+
+```yaml
+config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['namespace']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'slack-notification'
+      routes:
+      - receiver: 'slack-notification'
+        matchers:
+          - severity = "critical"
+    receivers:
+    - name: 'slack-notification'
+      slack_configs:
+          - api_url: 'https://hooks.slack.com/services/T08ULBZB5UY/B08U0CE3DEG/OivCLYq28gNzz4TabiY5zUj'
             channel: '#alerts'
             send_resolved: true
-      templates:
-      - '/etc/alertmanager/config/*.tmpl'
-    ```
-4. **Upgrade the Chart**
-    ```bash
-    helm upgrade my-kube-prometheus-stack prometheus-community/kube-prometheus-stack -f kube-prom-stack.yaml -n monitoring
-    ```
+    templates:
+    - '/etc/alertmanager/config/*.tmpl'
+```
 
-#### 2.5.4 Logging with Elasticsearch, Filebeat, Kibana
+Note: you can refer this DOCs for the slack configuration. “https://prometheus.io/docs/alerting/latest/configuration/#slack_config” 
 
-1. **Install Elasticsearch via Helm**
-    ```bash
-    helm repo add elastic https://helm.elastic.co -n logging
-    helm install my-elasticsearch elastic/elasticsearch --version 8.5.1 -n logging
-    ```
+upgrade the chart
 
-2. **Create StorageClass for Elasticsearch**
-    - Apply `storageclass.yaml`:
-    ```yaml
-    apiVersion: storage.k8s.io/v1
-    kind: StorageClass
-    metadata:
-      name: ebs-aws
-      annotations:
-        storageclass.kubernetes.io/is-default-class: "true"
-    provisioner: ebs.csi.aws.com
-    reclaimPolicy: Delete
-    volumeBindingMode: WaitForFirstConsumer
-    ```
+```bash
+helm upgrade my-kube-prometheus-stack prometheus-community/kube-prometheus-stack -f kube-prom-stack.yaml -n monitoring
+```
 
-3. **Get and Edit Elasticsearch Helm Values**
-    ```bash
-    helm show values elastic/elasticsearch > elasticsearch.yaml
-    ```
-    - Edit values for replicas, master nodes, etc. Example:
-    ```yaml
-    replicas: 1
-    minimumMasterNodes: 1
-    clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
-    ```
+get grafana secret “user = admin”
 
-4. **Upgrade Elasticsearch Chart**
-    ```bash
-    helm upgrade my-elasticsearch elastic/elasticsearch -f elasticsearch.yaml -n logging
-    ```
+```bash
+kubectl --namespace monitoring get secrets my-kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+```
 
-5. **Install Filebeat via Helm**
-    ```bash
-    helm install my-filebeat elastic/filebeat --version 8.5.1 -n logging
-    ```
+You would get the notification in the slack’s respective channel.
 
-6. **Get and Edit Filebeat Helm Values**
-    ```bash
-    helm show values elastic/filebeat > filebeat.yaml
-    ```
-    - Edit values to ship EasyShop logs. Example:
-    ```yaml
-    filebeatConfig:
-      filebeat.yml: |
-        filebeat.inputs:
-        - type: container
-          paths:
-            - /var/log/containers/*easyshop*.log
-    ```
+## **Logging**
+- we will use elasticsearch for logsstore, filebeat for log shipping and kibana for the visualization. 
+```
+NOTE: The EBS driver we installed is for elasticsearch to dynamically provision an EBS volume.
+```
+**Install Elastic Search:**
 
-7. **Install Kibana via Helm**
-    ```bash
-    helm install my-kibana elastic/kibana --version 8.5.1 -n logging
-    ```
+```bash
+helm repo add elastic https://helm.elastic.co -n logging
+helm install my-elasticsearch elastic/elasticsearch --version 8.5.1 -n logging
+```
 
-8. **Get and Edit Kibana Helm Values**
-    ```bash
-    helm show values elastic/kibana > kibana.yaml
-    ```
-    - Edit ingress settings. Example:
-    ```yaml
-    ingress:
-      enabled: true
-      className: "alb"
-      pathtype: Prefix
-      annotations:
-        alb.ingress.kubernetes.io/group.name: easyshop-app-lb
-        alb.ingress.kubernetes.io/scheme: internet-facing
-        alb.ingress.kubernetes.io/target-type: ip
-        alb.ingress.kubernetes.io/backend-protocol: HTTP
-        alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:876997124628:certificate/b69bb6e7-cbd1-490b-b765-27574080f48c
-        alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
-        alb.ingress.kubernetes.io/ssl-redirect: '443'
-      hosts:
-        - host: logs-kibana.devopsdock.site
-          paths:
-            - path: /
-    ```
+Create a storageclass so that elastic search can dynamically provision volume in AWS.
 
-9. **Upgrade Kibana Chart**
-    ```bash
-    helm upgrade my-kibana elastic/kibana -f kibana.yaml -n logging
-    ```
+storageclass.yaml
 
-10. **Add Route53 Records for Logging Endpoints**
+```yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-aws
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: ebs.csi.aws.com
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+```
 
-11. **Retrieve Elasticsearch Secret for Kibana**
-    ```bash
-    kubectl get secrets --namespace=logging elasticsearch-master-credentials -ojsonpath='{.data.password}' | base64 -d
-    ```
+apply the yaml file.
 
-12. **Configure Filebeat to Ship EasyShop Logs**
-    - Edit `filebeatConfig` in values.
+get the values for elastic search helm chart.
 
-13. **Upgrade Filebeat Chart and Verify Logs in Kibana**
+```bash
+helm show values elastic/elasticsearch > elasticsearch.yaml 
+```
+
+update the values
+
+```yaml
+replicas: 1
+minimumMasterNodes: 1
+clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+```
+
+upgrade the chart
+
+```bash
+helm upgrade my-elasticsearch elastic/elasticsearch -f elasticsearch.yaml -n logging
+```
+
+if upgarde doesnt happen then uninstall and install it again.
+
+make sure the pod is running .
+
+```bash
+kubectl get po -n logging
+NAME                     READY   STATUS    RESTARTS   AGE
+elastic-operator-0       1/1     Running   0          6h33m
+elasticsearch-master-0   1/1     Running   0          87m
+```
+
+**FileBeat:**
+
+install filebeat for log shipping.
+
+```bash
+helm repo add elastic https://helm.elastic.co
+helm install my-filebeat elastic/filebeat --version 8.5.1 -n logging
+```
+
+get the values
+
+```bash
+helm show values elastic/filebeat > filebeat.yaml 
+```
+
+Filebeat runs as a daemonset. check if its up.
+
+```bash
+kubectl get po -n logging
+NAME                         READY   STATUS    RESTARTS   AGE
+elastic-operator-0           1/1     Running   0          6h38m
+elasticsearch-master-0       1/1     Running   0          93m
+my-filebeat-filebeat-g79qs   1/1     Running   0          25s
+my-filebeat-filebeat-kh8mj   1/1     Running   0          25s
+```
+
+**Install Kibana:**
+
+install kibana through helm.
+
+```bash
+helm repo add elastic https://helm.elastic.co
+helm install my-kibana elastic/kibana --version 8.5.1 -n logging
+```
+
+Verify if it runs.
+
+```bash
+kubectl get po -n logging
+NAME                               READY   STATUS    RESTARTS       AGE
+elastic-operator-0                 1/1     Running   0              8h
+elasticsearch-master-0             1/1     Running   0              3h50m
+my-filebeat-filebeat-g79qs         1/1     Running   0              138m
+my-filebeat-filebeat-jz42x         1/1     Running   0              108m
+my-filebeat-filebeat-kh8mj         1/1     Running   1 (137m ago)   138m
+my-kibana-kibana-559f75574-9s4xk   1/1     Running   0              130m
+```
+
+get values
+
+```bash
+helm show values elastic/kibana > kibana.yaml 
+```
+
+modify the values for ingress settings
+
+```yaml
+ingress:
+  enabled: true
+  className: "alb"
+  pathtype: Prefix
+  annotations:
+    alb.ingress.kubernetes.io/group.name: easyshop-app-lb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:876997124628:certificate/b69bb6e7-cbd1-490b-b765-27574080f48c
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+  hosts:
+    - host: logs-kibana.devopsdock.site
+      paths:
+        - path: /
+```
+
+save the file and exit. upgrade the helm chart using the values file.
+
+```bash
+helm upgrade my-kibana elastic/kibana -f kibana.yaml -n logging
+```
+
+add all the records to route 53 and give the value as load balancer DNS name. and try to access one by one. 
+
+retrive the secret of elastic search as kibana’s password, username is “elastic”
+
+```bash
+kubectl get secrets --namespace=logging elasticsearch-master-credentials -ojsonpath='{.data.password}' | base64 -d
+```
+
+### **Filebeat Configuration to ship the "easyshop" app logs to elasticsearch**
+
+configure filebeat to ship the application logs to view in kibana
+
+```yaml
+filebeatConfig:
+    filebeat.yml: |
+      filebeat.inputs:
+      - type: container
+        paths:
+          - /var/log/containers/*easyshop*.log
+```
+
+upgrade filebeat helm chart and check in kibana’s UI if the app logs are streaming.
 
 ---
 
-## 3. Congratulations!
+## **Congratulations!** <br/>
+Your EasyShop platform is now fully deployed, monitored, and logging-enabled on AWS EKS with CI/CD, observability, and logging best practices.
 
-Your EasyShop platform is now fully deployed and operational!
+---
