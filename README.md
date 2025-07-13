@@ -240,7 +240,7 @@ server:
       alb.ingress.kubernetes.io/backend-protocol: HTTP
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
       alb.ingress.kubernetes.io/ssl-redirect: '443'
-    hostname: argocd.devopsdock.site
+    hostname: argocd.cloudwithvikash.com
     aws:
       serviceType: ClusterIP # <- Used with target-type: ip
       backendProtocolVersion: GRPC
@@ -249,7 +249,7 @@ server:
 ```bash
 helm upgrade my-argo-cd argo/argo-cd -n argocd -f my-values.yaml
 ```
-5. add the record in route53 “argocd.devopsdock.site” with load balancer dns.
+5. add the record in route53 “argocd.cloudwithvikash.com” with load balancer dns.
 
 6. access it in browser.
 
@@ -303,7 +303,7 @@ annotations:
     kubernetes.io/ingress.class: alb
 ```
 
-- **add record to route 53 “easyshop.devopsdock.site”**
+- **add record to route 53 “easyshop.cloudwithvikash.com”**
 
 - **Access your site now.**
 
@@ -355,7 +355,7 @@ annotations:
       alb.ingress.kubernetes.io/ssl-redirect: '443'
  
     hosts:
-      - grafana.devopsdock.site
+      - grafana.cloudwithvikash.com
 ```
 
 **Prometheus:** 
@@ -372,7 +372,7 @@ annotations:
     labels: {}
 
     hosts: 
-      - prometheus.devopsdock.site
+      - prometheus.cloudwithvikash.com
         paths:
         - /
         pathType: Prefix
@@ -389,7 +389,7 @@ annotations:
       alb.ingress.kubernetes.io/ssl-redirect: '443'
     
     hosts: 
-      - alertmanager.devopsdock.site
+      - alertmanager.cloudwithvikash.com
     paths:
     - /
     pathType: Prefix
@@ -578,7 +578,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
   hosts:
-    - host: logs-kibana.devopsdock.site
+    - host: logs-kibana.cloudwithvikash.com
       paths:
         - path: /
 ```
