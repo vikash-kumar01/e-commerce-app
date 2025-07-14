@@ -255,8 +255,22 @@ helm upgrade my-argo-cd argo/argo-cd -n argocd -f my-values.yaml
 5. add the record in route53 “argocd.cloudwithvikash.com” with load balancer dns.
 
 6. access it in browser.
+7. If argocd.cloudwithvikash.com is not accessible through browser
+```
+✅ What You Should Do
+🔧 Option 1: Add a Catch-All Rule
+- Go to EC2 > Load Balancers > Listeners > HTTPS (443)
+- Click View/Edit Rules
+- Click Add Rule
+- Set:
+- Priority: 2 (lower than existing rule)
+- Condition: Path is /*
+- Action: Forward to your Argo CD target group
+- Save the rule
+✅ This will catch all requests regardless of Host header and forward them to Argo 
 
-7. Retrive the secret for Argocd
+```
+8. Retrive the secret for Argocd
 
 ```jsx
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
