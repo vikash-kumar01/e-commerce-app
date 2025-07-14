@@ -622,7 +622,7 @@ alertmanager:
     ## Hosts must be provided if Ingress is enabled.
     ##
     hosts:
-      - alertmanager.devopsdock.site
+      - alertmanager.techwithvikash.com
 
     ## Paths to use for ingress rules - one path should match the alertmanagerSpec.routePrefix
     ##
@@ -1293,9 +1293,9 @@ grafana:
     ## Must be provided if Ingress is enable.
     ##
     # hosts:
-    #   - grafana.devopsdock.site
+    #   - grafana.techwithvikash.com
     hosts:
-      - grafana.devopsdock.site
+      - grafana.techwithvikash.com
 
     ## Path for grafana ingress
     path: /
@@ -3690,7 +3690,7 @@ prometheus:
     # hosts:
     #   - prometheus.domain.com
     hosts:
-      - prometheus.devopsdock.site
+      - prometheus.techwithvikash.com
 
     ## Paths to use for ingress rules - one path should match the prometheusSpec.routePrefix
     ##

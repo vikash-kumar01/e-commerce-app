@@ -2377,7 +2377,7 @@ server:
 
     # -- Argo CD server hostname
     # @default -- `""` (defaults to global.domain)
-    hostname: argocd.devopsdock.site
+    hostname: argocd.techwithvikash.com
 
     # -- The path to Argo CD server
     path: /
