@@ -229,6 +229,7 @@ configs:
   params:
     server.insecure: true
 
+search by # Argo CD server ingress configuration
 server:
   ingress:
     enabled: true
