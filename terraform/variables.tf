@@ -17,12 +17,6 @@ variable "my_enviroment" {
   default     = "dev"
 }
 
-variable "key_name" {
-  description = "Name of the SSH key pair to use for the EC2 instance"
-  default     = "terra-automate-key"
-  
-}
-
 variable "cluster_name" {
   description = "Name of the EKS cluster"
   default     = "my-eks-cluster"

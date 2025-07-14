@@ -9,7 +9,7 @@ module "vpc" {
 
 module "key_pair" {
   source = "./modules/key_pair"
-  key_name = var.key_name
+  key_name = local.key_name
 }
 
 module "EC2" {

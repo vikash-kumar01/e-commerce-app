@@ -150,7 +150,7 @@ sudo systemctl status jenkins
 >   - **Add a New Shared Library:**  
 >     - Name: Shared
 >     - Default Version: main
->     - Project Repository URL: `https://github.com/<your user-name/jenkins-shared-libraries`.
+>     - Project Repository URL: `https://github.com/<your user-name/e-commerce-app-shared-lib`.
 >   - [Notes:] Make sure the repo contains a proper directory structure eq: vars/
 
 **7. Setup Pipeline**  
@@ -162,7 +162,7 @@ sudo systemctl status jenkins
 >   - In **General**
 >     - Description: EasyShop
 >     - Check the box: `GitHub project`
->     - GitHub Repo URL: `https://github.com/<your user-name/tws-e-commerce-app`
+>     - GitHub Repo URL: `https://github.com/<your user-name/e-commerce-app`
 >
 >   - In **Trigger**
 >     - Check the box: `GitHub hook trigger for GITScm polling`
@@ -170,7 +170,7 @@ sudo systemctl status jenkins
 >   - In **Pipeline**
 >     - Definition: `Pipeline script from SCM`
 >     - SCM: `Git`
->     - Repository URL: `https://github.com/<your user-name/tws-e-commerce-app`
+>     - Repository URL: `https://github.com/<your user-name/e-commerce-app`
 >     - Credentials: `github-credentials`
 >     - Branch: master
 >     - Script Path: `Jenkinsfile`
@@ -312,7 +312,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 > In the “Destination” section:
 > 
 > - **Cluster URL:** [https://kubernetes.default.svc](https://kubernetes.default.svc/) (usually shown as "default")
-> - **Namespace:** tws-e-commerce-app (or your desired namespace)
+> - **Namespace:** e-commerce-app (or your desired namespace)
 >
 > Click on “Create”.
 > 
