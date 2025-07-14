@@ -214,7 +214,7 @@ kubectl create namespace argocd
 (https://artifacthub.io/packages/helm/argo/argo-cd)
 ```bash
 helm repo add argo https://argoproj.github.io/argo-helm
-helm install my-argo-cd argo/argo-cd --version 8.0.10
+helm install my-argo-cd argo/argo-cd --version 8.0.10 -n argocd
 ```
 2. get the values file and save it
 ```bash
