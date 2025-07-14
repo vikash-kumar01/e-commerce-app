@@ -201,6 +201,7 @@ https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html
 **11. Install the EBS CSI driver refering the below docs link**<br/>
 ```
 https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html#eksctl_store_app_data
+https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/install.md
 ```
 
 
