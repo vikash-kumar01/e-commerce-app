@@ -201,6 +201,7 @@ https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html
 **11. Install the EBS CSI driver refering the below docs link**<br/>
 ```
 https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html#eksctl_store_app_data
+https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/install.md
 ```
 
 
@@ -213,7 +214,7 @@ kubectl create namespace argocd
 (https://artifacthub.io/packages/helm/argo/argo-cd)
 ```bash
 helm repo add argo https://argoproj.github.io/argo-helm
-helm install my-argo-cd argo/argo-cd --version 8.0.10
+helm install my-argo-cd argo/argo-cd --version 8.0.10 -n argocd
 ```
 2. get the values file and save it
 ```bash
@@ -228,6 +229,7 @@ configs:
   params:
     server.insecure: true
 
+search by # Argo CD server ingress configuration
 server:
   ingress:
     enabled: true
@@ -253,8 +255,22 @@ helm upgrade my-argo-cd argo/argo-cd -n argocd -f my-values.yaml
 5. add the record in route53 “argocd.cloudwithvikash.com” with load balancer dns.
 
 6. access it in browser.
+7. If argocd.cloudwithvikash.com is not accessible through browser
+```
+✅ What You Should Do
+🔧 Option 1: Add a Catch-All Rule
+- Go to EC2 > Load Balancers > Listeners > HTTPS (443)
+- Click View/Edit Rules
+- Click Add Rule
+- Set:
+- Priority: 2 (lower than existing rule)
+- Condition: Path is /*
+- Action: Forward to your Argo CD target group
+- Save the rule
+✅ This will catch all requests regardless of Host header and forward them to Argo 
 
-7. Retrive the secret for Argocd
+```
+8. Retrive the secret for Argocd
 
 ```jsx
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
