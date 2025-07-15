@@ -496,6 +496,62 @@ volumeBindingMode: WaitForFirstConsumer
 
 apply the yaml file.
 
+If the elasticseacrh not coming up and is in pending state.
+
+```jsx
+✅ Recommended Fix
+✅ Option A: Use IRSA (Best Practice, AWS Recommended)
+Since you are on EKS, this is the cleanest fix.
+
+Create IAM policy for EBS CSI (if not already):
+
+aws iam create-policy --policy-name AmazonEBSCSIDriverPolicy \
+  --policy-document file://ebs-csi-policy.json
+
+Where ebs-csi-policy.json contains permissions like:
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:AttachVolume",
+                "ec2:CreateSnapshot",
+                "ec2:CreateTags",
+                "ec2:CreateVolume",
+                "ec2:DeleteSnapshot",
+                "ec2:DeleteTags",
+                "ec2:DeleteVolume",
+                "ec2:DescribeInstances",
+                "ec2:DescribeSnapshots",
+                "ec2:DescribeTags",
+                "ec2:DescribeVolumes",
+                "ec2:DescribeAvailabilityZones",
+                "ec2:DetachVolume",
+                "ec2:ModifyVolume"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+Create IAM Role with OIDC Trust Policy for IRSA
+
+Use eksctl or AWS CLI to create a role and associate with the service account:
+
+eksctl create iamserviceaccount \
+  --name ebs-csi-controller-sa \
+  --namespace kube-system \
+  --cluster mrevops-dev-eks \
+  --attach-policy-arn arn:aws:iam::<ACCOUNT_ID>:policy/AmazonEBSCSIDriverPolicy \
+  --approve \
+  --role-name AmazonEKS_EBS_CSI_DriverRole
+
+Restart the driver:
+kubectl -n kube-system delete pods -l app=ebs-csi-controller
+Now your CSI driver will use the IAM role via IRSA and not require EC2 IMDS.
+```
+
 get the values for elastic search helm chart.
 
 ```jsx
